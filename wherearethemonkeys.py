@@ -6,15 +6,13 @@ import sys
 from intra import ic
 
 
-
 def charge_env() -> None:
     load_dotenv()
     U_ID = getenv("UID")
     SECRET_ID = getenv("SECRETID")
 
     config_template = f"""
-    ---
-      intra:
+    intra:
         client: "{U_ID}" #UID
         secret: "{SECRET_ID}" #SECRET
         uri: "https://api.intra.42.fr/v2/oauth/token"
@@ -26,8 +24,10 @@ def charge_env() -> None:
     with open("config.yml", 'w') as config:
         yaml.dump(config_template, config, explicit_start=True)
 
+
 class Locator:
     def __init__(self, users_input=""):
+        charge_env()
         try:
             with open(sys.argv[1]) as file:
                 self.user_out = file.read().replace('\n', ',')
@@ -45,6 +45,7 @@ class Locator:
         }
         if not ic.client_id or not ic.client_secret:
             print ("\033[31mERROR\nIncorrect API credentials")
+            exit()
 
     def shell_list(self) -> None:
         response = ic.pages_threaded("users", params=self.payload)
@@ -69,6 +70,5 @@ class Locator:
 
 
 locator = Locator()
-
 locator.shell_list()
 print(locator.list())
